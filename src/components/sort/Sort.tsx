@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import Navbar from "../Navbar";
 import Rects from "./Rects";
 import { bubbleSort, insertionSort, selectionSort, quickSort } from '../../algorithms/sortingAlgorithms';
@@ -20,18 +20,20 @@ type Step = {
 };
 
 const Sort: React.FC = () => {
-  const [count, setCount] = useState<number>(5);
+  const [count, setCount] = useState<number>(10);
   const [range,setRange] = useState<number[]>([20,60]);
   const [rects, setRects] = useState<RectType[]>([]);
   const [rects2, setRects2] = useState<RectType[]>([]);
   const [doubles, setDoubles] = useState<boolean>(false);
-  const [speed, setSpeed] = useState<number>(50);
+  const [speed, setSpeed] = useState<number>(500); //less is faster
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [isRunning1, setIsRunning1] = useState<boolean>(false);
   const [isRunning2, setIsRunning2] = useState<boolean>(false);
   const [algo1, setAlgo1] = useState<number>(0);
   const [algo2, setAlgo2] = useState<number>(0);
-  
+  const [paused, setPaused] = useState<boolean>(false);
+  const pausedRef = useRef(paused);
+  const resetRef = useRef(false);
   const nullRects: RectType[] = [];
   
   useEffect(() => {
@@ -44,7 +46,9 @@ const Sort: React.FC = () => {
     const initialRects = getInitialRects(count, range);
     setRects(initialRects);
     setRects2([...initialRects]);
+    setRects2(initialRects.map(rect => ({ ...rect })));
   };
+  
 
   const handleRefresh = () => {
     setRects(rects.map(rect => ({ ...rect, status: '' })));
@@ -80,9 +84,9 @@ const Sort: React.FC = () => {
   const handleSort = async () => {
     try {
         setIsRunning(true);
-        console.log(algo1);
+        // console.log(rects);
         const steps1 = getStepsForAlgo(algo1, rects);
-        console.log("Steps1:", steps1);
+        // console.log("Steps1:", steps1);
         const steps2 = doubles ? getStepsForAlgo(algo2, rects2) : [];
 
         if (doubles) {
@@ -110,33 +114,40 @@ const Sort: React.FC = () => {
   const handleFirst = async (steps: Step[]) => {
     setIsRunning1(true);
     const updatedRects = [...rects];
-  
-    performSorting(steps, updatedRects, setRects, speed);
-  
-    setIsRunning1(false);
-    if (!isRunning2) setIsRunning(false);
+    performSorting(steps, updatedRects, setRects, speed, setIsRunning1,pausedRef,resetRef);
   };
   
   const handleSecond = async (steps: Step[]) => {
     setIsRunning2(true);
     const updatedRects2 = [...rects2];
-    
-    performSorting(steps, updatedRects2, setRects2, speed);
-    
-    setIsRunning2(false);
-    if (!isRunning1) setIsRunning(false);
+    performSorting(steps, updatedRects2, setRects2, speed,setIsRunning2,pausedRef,resetRef); 
   };
 
   const performSorting = async (
     steps: Step[],
     updatedRects: RectType[],
     updateRects: React.Dispatch<React.SetStateAction<RectType[]>>,
-    speed: number
+    speed: number,
+    setIsRunning: React.Dispatch<React.SetStateAction<boolean>>,
+    pausedRef:React.MutableRefObject<boolean>,
+    resetRef:React.MutableRefObject<boolean>
   ) => {
+    
+    let sortedIn = false;
     for (let i = 0; i < steps.length; i++) {
+
+      if(resetRef.current){
+        break;
+      }
+
+      while(pausedRef.current){
+        console.log("Paused");
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
       if (i !== 0) {
-        updatedRects[steps[i - 1].xx].status = '';
-        updatedRects[steps[i - 1].yy].status = '';
+        updatedRects[steps[i - 1].xx].isSorting = false;
+        updatedRects[steps[i - 1].yy].isSorting = false;
       }
   
       const { xx, yy, changed } = steps[i];
@@ -144,29 +155,44 @@ const Sort: React.FC = () => {
         updatedRects[xx] = { ...updatedRects[xx], isSorted: true, isSorting: false };
       } else if (changed) {
         [updatedRects[xx], updatedRects[yy]] = [updatedRects[yy], updatedRects[xx]];
-        updatedRects[xx].status = 'issorting';
-        updatedRects[yy].status = 'issorting';
+        updatedRects[xx].isSorting = true;
+        updatedRects[yy].isSorting = true;
       } else {
-        updatedRects[xx].status = 'issorting';
-        updatedRects[yy].status = 'issorting';
+        updatedRects[xx].isSorting = true;
+        updatedRects[yy].isSorting = true;
       }
+
   
       updateRects([...updatedRects]);
       await new Promise(resolve => setTimeout(resolve, speed));
+
+      sortedIn = true;
     }
 
-    for(let i=0;i<updatedRects.length;i++){
+    // console.log("SortedIn:",sortedIn);
+    if(sortedIn)for(let i=0;i<updatedRects.length;i++){
       updatedRects[i].isSorted = true;
     }
+    setIsRunning(false);
   };
 
+  const togglePause = () => {
+    setPaused((prev=>{
+      pausedRef.current = !prev;
+      return !prev;
+    }));
+  };
+  
+  const handleReset = ()=>{
+      window.location.reload();
+  }
 
   return (
     <div>
       <Navbar />
       <div className="bg-gray-400 text-white h-12 text-center items-center text-2xl p-1">Sorting Visualizer</div>
       <Values 
-        disabled={isRunning}
+        disabled={isRunning||isRunning1||isRunning2}
         onDouble={(val: boolean) => handleDouble(val)}
         onRangeChange={(val: number[]) =>handleRangeChange(val)}
         onVisualize={handleSort}
@@ -177,9 +203,13 @@ const Sort: React.FC = () => {
         onAlgo2Changed={(val: string) => handleAlgoChanged(1, val)}
         onSpeedChanged={handleSpeedChanged}
         setRunning={setIsRunning}
+        onReset={handleReset}
+        ispaused={paused}
+        togglePause={togglePause}
       />
       <Rects speed={speed} rects={rects} />
       {doubles && <Rects speed={speed} rects={rects2} />}
+      
     </div>
   );
 };

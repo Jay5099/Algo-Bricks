@@ -2,7 +2,7 @@ import Cards from "./Cards"
 import Navbar from "./Navbar"
 
 const Home = () => {
-  console.log("Home")
+  // console.log("Home")
   return (
     <div>
       <Navbar />  

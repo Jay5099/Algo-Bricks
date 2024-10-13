@@ -7,11 +7,11 @@ const Navbar = () => {
     const  [isSearchOpen, setIsSearchOpen] = useState(false)
 
     const handleClickMenu = () => {
-        console.log("Menu Clicked") 
+        // console.log("Menu Clicked") 
         isMenuOpen ? setIsMenuOpen(false) : setIsMenuOpen(true)
     }
     const handleSearch = () =>{
-        console.log("Search Clicked")
+        // console.log("Search Clicked")
         isSearchOpen ? setIsSearchOpen(false) : setIsSearchOpen(true)
     }
 

@@ -172,14 +172,14 @@ export function quickSort(rects: RectType[]): Step[] {
                     yy: j,
                     changed: true,
                 });
-                console.log(`Swapped: ${i} and ${j}`);
+                // console.log(`Swapped: ${i} and ${j}`);
             } else {
                 pairs.push({
                     xx: i + 1,
                     yy: j,
                     changed: false,
                 });
-                console.log(`No swap: ${i + 1} and ${j}`);
+                // console.log(`No swap: ${i + 1} and ${j}`);
             }
         }
 
@@ -194,7 +194,7 @@ export function quickSort(rects: RectType[]): Step[] {
             yy: high,
             changed: true,
         });
-        console.log(`Swapped pivot: ${i + 1} and ${high}`);
+        // console.log(`Swapped pivot: ${i + 1} and ${high}`);
 
         return i + 1;
     };

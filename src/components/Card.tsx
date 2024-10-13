@@ -17,7 +17,7 @@ const Card: React.FC<CardProps> = ({ card }) => {
     const navigate = useNavigate()
 
     const handleClickCard = () => {
-        console.log(card.title+" Clicked. Navigating "+card.url) // Use the card prop
+        // console.log(card.title+" Clicked. Navigating "+card.url) // Use the card prop
         navigate(`${card.url}`)
     }
   return (

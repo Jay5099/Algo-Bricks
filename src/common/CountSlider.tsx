@@ -8,7 +8,7 @@ type CountSliderProps = {
 };  
 
 const CountSlider:React.FC<CountSliderProps> = ({onChange, disabled}) => {
-  const [value, setValue] = useState(5); // Initial value of the slider is 5
+  const [value, setValue] = useState(10); // Initial value of the slider is 5
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(event.target.value);
