@@ -211,3 +211,203 @@ export function quickSort(rects: RectType[]): Step[] {
 
     return pairs;
 }
+
+export function rquickSort(rects: RectType[]): Step[] {
+    const pairs: Step[] = [];
+    const prevRect = rects.slice();
+
+    const partition = (low: number, high: number): number => {
+        const pivot = prevRect[high].height;
+        let i = low - 1;
+
+        for (let j = low; j < high; j++) {
+            if (prevRect[j].height < pivot) {
+                i++;
+                const recti = { ...prevRect[i] };
+                const rectj = { ...prevRect[j] };
+                prevRect[i] = rectj;
+                prevRect[j] = recti;
+
+                pairs.push({
+                    xx: i,
+                    yy: j,
+                    changed: true,
+                });
+            } else {
+                pairs.push({
+                    xx: i + 1,
+                    yy: j,
+                    changed: false,
+                });
+            }
+        }
+
+        // Swap the pivot element to its correct position
+        const recti = { ...prevRect[i + 1] };
+        const rectPivot = { ...prevRect[high] };
+        prevRect[i + 1] = rectPivot;
+        prevRect[high] = recti;
+
+        pairs.push({
+            xx: i + 1,
+            yy: high,
+            changed: true,
+        });
+
+        return i + 1;
+    };
+
+    const quickSortRecursive = (low: number, high: number) => {
+        if (low < high) {
+            const pi = partition(low, high);
+            quickSortRecursive(low, pi - 1);
+            quickSortRecursive(pi + 1, high);
+        }
+    };
+
+    quickSortRecursive(0, prevRect.length - 1);
+
+    return pairs;
+}
+
+type StepM = {
+    left: number;
+    right: number;
+    mid: number;
+    val: RectTypeM[];
+};
+
+
+type RectTypeM = {
+    width: number;
+    height: number;
+    isLeft?: boolean;
+    isSorting?: boolean;
+    isRight?: boolean;
+    isRange?: boolean;
+    isSorted?: boolean;
+  };
+
+let values: StepM[] = [];
+
+export function mergeSort(rects2: RectTypeM[]): StepM[] {
+    let rects = rects2.slice();
+    values = [];
+    let sz = rects2.length - 1;
+    mergeSortRecursive(rects, 0, sz);
+    return values;
+}
+
+function merge(rects: RectTypeM[], l: number, m: number, r: number): void {
+    let n1 = m - l + 1;
+    let n2 = r - m;
+
+    const L = rects.slice(l, m + 1);
+    const R = rects.slice(m + 1, r + 1);
+    let i = 0;
+    let j = 0;
+    let k = l;
+
+    while (i < n1 && j < n2) {
+        if (L[i].width <= R[j].width) {
+            rects[k] = L[i];
+            i++;
+        } else {
+            rects[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        rects[k] = L[i];
+        i++;
+        k++;
+    }
+    while (j < n2) {
+        rects[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+function mergeSortRecursive(rects: RectTypeM[], l: number, r: number): void {
+    if (l >= r) return;
+
+    const m = Math.floor(l + (r - l) / 2);
+
+    mergeSortRecursive(rects, l, m);
+    mergeSortRecursive(rects, m + 1, r);
+    merge(rects, l, m, r);
+
+    const rectsCopy = rects.slice(l, r + 1);
+    const value: StepM = {
+        left: l,
+        right: r,
+        mid: m,
+        val: rectsCopy,
+    };
+
+    values.push(value);
+}
+
+type StepH = {
+    left: number;
+    right: number;
+    sorted: boolean;
+};
+
+let valuesH: StepH[] = [];
+
+export function heapSort(rects2: RectType[]): StepH[] {
+    let rects = rects2.slice();
+    valuesH = [];
+    let sz = rects2.length;
+    performHeapSort(rects, sz);
+    return valuesH;
+}
+
+function heapify(rects: RectType[], n: number, i: number): void {
+    let largest = i;
+    let l = 2 * i + 1;
+    let r = 2 * i + 2;
+
+    if (l < n && rects[l].width > rects[largest].width) largest = l;
+    if (r < n && rects[r].width > rects[largest].width) largest = r;
+
+    if (largest != i) {
+        const temp = rects[i];
+        rects[i] = rects[largest];
+        rects[largest] = temp;
+
+        const valueH: StepH = {
+            left: i,
+            right: largest,
+            sorted: false
+        };
+        valuesH.push(valueH);
+
+        heapify(rects, n, largest);
+    }
+}
+
+function performHeapSort(rects: RectType[], n: number): void {
+    for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+        heapify(rects, n, i);
+    }
+
+    for (let i = n - 1; i > 0; i--) {
+        const temp = rects[i];
+        rects[i] = rects[0];
+        rects[0] = temp;
+
+        const valueH: StepH = {
+            left: i,
+            right: 0,
+            sorted: true
+        };
+        valuesH.push(valueH);
+
+        heapify(rects, i, 0);
+    }
+}

@@ -34,6 +34,7 @@ const Sort: React.FC = () => {
   const [paused, setPaused] = useState<boolean>(false);
   const pausedRef = useRef(paused);
   const resetRef = useRef(false);
+  const speedRef = useRef(speed);
   const nullRects: RectType[] = [];
   
   useEffect(() => {
@@ -79,12 +80,14 @@ const Sort: React.FC = () => {
 
   const handleSpeedChanged = (val: number) => {
     setSpeed(400 - val * 10);
+    speedRef.current=speed;
   }
 
   const handleSort = async () => {
     try {
         setIsRunning(true);
-        // console.log(rects);
+        resetRef.current = false;
+        console.log(rects);
         const steps1 = getStepsForAlgo(algo1, rects);
         // console.log("Steps1:", steps1);
         const steps2 = doubles ? getStepsForAlgo(algo2, rects2) : [];
@@ -114,30 +117,33 @@ const Sort: React.FC = () => {
   const handleFirst = async (steps: Step[]) => {
     setIsRunning1(true);
     const updatedRects = [...rects];
-    performSorting(steps, updatedRects, setRects, speed, setIsRunning1,pausedRef,resetRef);
+    performSorting(steps, updatedRects, setRects, setIsRunning1,pausedRef,resetRef,speedRef);
   };
   
   const handleSecond = async (steps: Step[]) => {
     setIsRunning2(true);
     const updatedRects2 = [...rects2];
-    performSorting(steps, updatedRects2, setRects2, speed,setIsRunning2,pausedRef,resetRef); 
+    performSorting(steps, updatedRects2, setRects2,setIsRunning2,pausedRef,resetRef,speedRef); 
   };
 
   const performSorting = async (
     steps: Step[],
     updatedRects: RectType[],
     updateRects: React.Dispatch<React.SetStateAction<RectType[]>>,
-    speed: number,
     setIsRunning: React.Dispatch<React.SetStateAction<boolean>>,
     pausedRef:React.MutableRefObject<boolean>,
-    resetRef:React.MutableRefObject<boolean>
+    resetRef:React.MutableRefObject<boolean>,
+    speedRef:React.MutableRefObject<number>
   ) => {
+
+    console.log("Steps:",steps);
     
     let sortedIn = false;
     for (let i = 0; i < steps.length; i++) {
-
+      
       if(resetRef.current){
-        break;
+        console.log("In performSorting",i);
+        return;
       }
 
       while(pausedRef.current){
@@ -164,7 +170,7 @@ const Sort: React.FC = () => {
 
   
       updateRects([...updatedRects]);
-      await new Promise(resolve => setTimeout(resolve, speed));
+      await new Promise(resolve => setTimeout(resolve, speedRef.current));
 
       sortedIn = true;
     }
@@ -184,7 +190,18 @@ const Sort: React.FC = () => {
   };
   
   const handleReset = ()=>{
-      window.location.reload();
+    resetRef.current = true;
+    setPaused(false);
+    pausedRef.current = false;
+
+    setIsRunning(false);
+    setIsRunning1(false);
+    setIsRunning2(false);
+
+    setTimeout(() => {
+      handleRandomize();
+    },100)
+
   }
 
   return (
@@ -206,6 +223,7 @@ const Sort: React.FC = () => {
         onReset={handleReset}
         ispaused={paused}
         togglePause={togglePause}
+        recursive={false}
       />
       <Rects speed={speed} rects={rects} />
       {doubles && <Rects speed={speed} rects={rects2} />}

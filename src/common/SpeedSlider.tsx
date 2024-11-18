@@ -2,10 +2,9 @@ import  React, { useState } from 'react';
 
 type SpeedSliderProps = {
   onChange: (val: number) => void;
-  disabled: boolean;
 }
 
-const SpeedSlider:React.FC<SpeedSliderProps> = ({onChange,disabled}) => {
+const SpeedSlider:React.FC<SpeedSliderProps> = ({onChange}) => {
 
   const [value, setValue] = useState(5); // Initial value of the slider is 5
 
@@ -28,7 +27,7 @@ const SpeedSlider:React.FC<SpeedSliderProps> = ({onChange,disabled}) => {
         min="10" 
         max="50" 
         value={value} 
-        disabled={disabled} // Disable the slider when the sorting is in progress
+        // disabled={disabled} // Disable the slider when the sorting is in progress
         onChange={handleChange} // Change the value when the slider is moved
         className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
       />

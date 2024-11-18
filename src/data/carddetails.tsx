@@ -14,13 +14,6 @@ const cards = [
         image: "/rec_sort.png",
         url: "/recursivesort"
     },
-    {
-        id: 3,
-        title: "Binary Search",
-        description: "This is the Binary search",
-        image: "/binarysearch.png",
-        url: "/binarysearch"
-    },
 ]
 
 export default cards

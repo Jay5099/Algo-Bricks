@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 type DropDownProps = {
   onChange: (val: string) => void;
   disabled: boolean;
+  rec: boolean;
 }
 
-const DropDown:React.FC<DropDownProps> = ({ onChange, disabled }) => {
+const DropDown:React.FC<DropDownProps> = ({ onChange, disabled,rec }) => {
   const [isOpen, setIsOpen] = useState(false); // State to track dropdown visibility
-  const [selectedValue, setSelectedValue] = useState('Bubble'); // State to store selected value
+  const [selectedValue, setSelectedValue] = useState(`${rec?"Merge":"Bubble"}`); // State to store selected value
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen); // Toggle dropdown visibility
@@ -35,7 +36,7 @@ const handleSelect = (value: string) => {
       </button>
 
       {/* Dropdown menu */}
-      {isOpen && (
+      {isOpen&&!rec && (
         <div id="dropdown" className="absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 overflow-auto max-h-56 mt-2">
           {/* Dropdown options */}
           <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
@@ -63,6 +64,31 @@ const handleSelect = (value: string) => {
           </ul>
         </div>
       )}
+
+      {/* Dropdown menu */}
+      {isOpen&& rec && (
+        <div id="dropdown" className="absolute z-10 bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 overflow-auto max-h-56 mt-2">
+        {/* Dropdown options */}
+        <ul className="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+          <li>
+            <button onClick={() => handleSelect('Merge')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+            Merge Sort
+            </button>
+          </li>
+          <li>
+            <button onClick={() => handleSelect('Quick')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              Quick sort
+            </button>
+          </li>
+          <li>
+            <button onClick={() => handleSelect('Heap')} className="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              Heap Sort
+            </button>
+          </li>
+        </ul>
+      </div>
+      )}
+
     </div>
   );
 };

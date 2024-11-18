@@ -3,7 +3,8 @@ import cards from "../data/carddetails"
 
 const Cards = () => {
   return (
-    <div className=" m-5 p-5 grid lg:grid-cols-3 lg:gap-4 md:grid-cols-2 md:gap-2 ">
+    <div className=" m-5 p-5 grid lg:grid-cols-2 lg:gap-4 md:grid-cols-2 md:gap-2 ">
+      {/* grid-3*/}
         {cards.map((card) => (
             <Card key={card.id} card={card} />
         ))}
